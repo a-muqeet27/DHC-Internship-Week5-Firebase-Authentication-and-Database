@@ -1,4 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import '../firebase_options.dart';
 
 class FirestoreException implements Exception {
   final String message;
@@ -11,22 +14,27 @@ class FirestoreException implements Exception {
 }
 
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late final CollectionReference users;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
-  FirestoreService() {
-    users = _firestore.collection('users');
-    // Enable offline persistence
-    _enableOfflinePersistence();
+  CollectionReference get users => _firestore.collection('users');
+
+  Future<void> _ensureInitialized() async {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
   }
 
-  void _enableOfflinePersistence() {
+  Future<void> _enableOfflinePersistence() async {
     try {
+      await _ensureInitialized();
       _firestore.settings = const Settings(
         persistenceEnabled: true,
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
     } catch (e) {
+      // ignore: avoid_print
       print('Error enabling offline persistence: $e');
     }
   }
@@ -38,6 +46,9 @@ class FirestoreService {
     String email,
   ) async {
     try {
+      await _ensureInitialized();
+      await _enableOfflinePersistence();
+
       if (uid.isEmpty || name.isEmpty || email.isEmpty) {
         throw FirestoreException('User data cannot be empty');
       }
@@ -61,6 +72,9 @@ class FirestoreService {
   // Get user data with better error handling
   Future<Map<String, dynamic>> getUser(String uid) async {
     try {
+      await _ensureInitialized();
+      await _enableOfflinePersistence();
+
       if (uid.isEmpty) {
         throw FirestoreException('User ID cannot be empty');
       }
@@ -123,6 +137,9 @@ class FirestoreService {
     Map<String, dynamic> data,
   ) async {
     try {
+      await _ensureInitialized();
+      await _enableOfflinePersistence();
+
       if (uid.isEmpty) {
         throw FirestoreException('User ID cannot be empty');
       }
@@ -143,6 +160,9 @@ class FirestoreService {
   // Delete user data
   Future<void> deleteUser(String uid) async {
     try {
+      await _ensureInitialized();
+      await _enableOfflinePersistence();
+
       if (uid.isEmpty) {
         throw FirestoreException('User ID cannot be empty');
       }

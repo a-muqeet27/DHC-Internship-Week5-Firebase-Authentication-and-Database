@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+import '../firebase_options.dart';
 
 class AuthException implements Exception {
   final String message;
@@ -11,7 +14,15 @@ class AuthException implements Exception {
 }
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get _auth => FirebaseAuth.instance;
+
+  Future<void> _ensureInitialized() async {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  }
 
   // Validation helper
   String? validateEmail(String email) {
@@ -86,6 +97,7 @@ class AuthService {
         throw AuthException(passwordError);
       }
 
+      await _ensureInitialized();
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -119,6 +131,7 @@ class AuthService {
         throw AuthException(passwordError);
       }
 
+      await _ensureInitialized();
       UserCredential userCredential =
           await _auth.signInWithEmailAndPassword(
         email: email.trim(),

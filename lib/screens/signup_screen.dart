@@ -5,6 +5,8 @@ import '../theme/app_theme.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -79,6 +81,7 @@ class _SignupScreenState extends State<SignupScreen> {
         );
 
         // Show success message
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Account created successfully! Redirecting to login...'),
@@ -91,6 +94,7 @@ class _SignupScreenState extends State<SignupScreen> {
         await Future.delayed(Duration(seconds: 2));
 
         // Redirect to login screen
+        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => LoginScreen()),

@@ -6,7 +6,7 @@ import 'login_screen.dart';
 class ProfileScreen extends StatefulWidget {
   final String uid;
 
-  ProfileScreen({required this.uid});
+  const ProfileScreen({super.key, required this.uid});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
